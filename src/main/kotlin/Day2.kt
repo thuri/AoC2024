@@ -25,6 +25,10 @@ class Day2 {
         reports.mapIndexed { index, report ->  isSafe(index,report) }.count { it }
     }
 
+    fun puzzle2() {
+        //reports.mapIndexed { index, report ->  isSafeWithDamper(index,report) }.count { it }
+    }
+
     private fun isSafe(reportNo: Int, report: List<Long>) : Boolean {
         val temp = report
             .mapIndexed {index, value -> value - report[max(0, index - 1)] }
@@ -34,7 +38,15 @@ class Day2 {
         return abs(temp.sum()) == temp.size
     }
 
-    fun puzzle2() {
+    /*private fun isSafeWithDamper(reportNo: Int, report: List<Long>) : Boolean {
+        val temp = report
+            .mapIndexed {index, value ->
+                val next = report.getOrElse(index + 1) { value }
+                val afterNext = report.getOrElse(index + 2) { 0 }
+                Pair(next - value, afterNext - value)
+            }.filterIndexed() {index, _ -> index != report.size - 1}
+            .map {  }
 
-    }
+        return abs(temp.sum()) == temp.size
+    }*/
 }

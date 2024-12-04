@@ -2,14 +2,13 @@ fun main() {
     val day4 = Day4()
     day4.example1()
     day4.puzzle1()
+    day4.example2()
     day4.puzzle2()
 }
 
 class Day4 {
 
-    fun example1() {
-
-        val input = """
+    val exampleInput = """
             MMMSXXMASM
             MSAMXMSMSA
             AMXSXMAAMM
@@ -21,12 +20,16 @@ class Day4 {
             MAMMMXMMMM
             MXMXAXMASX""".trimIndent()
 
-        findXmas(input).let(::println)
+    fun example1() {
+        findXmas(exampleInput).let(::println)
     }
-
 
     fun puzzle1() {
         findXmas(Day4::class.java.getResource("/Day4.txt")!!.readText()).let (::println )
+    }
+
+    fun example2() {
+        findXXmas(exampleInput).let(::println)
     }
 
     fun puzzle2() {
@@ -34,16 +37,45 @@ class Day4 {
     }
 
     private fun findXXmas(input: String) : Int {
+
+        /* -1,-1       1,-1
+                  A
+          -1, 1       1,1
+        */
+
+        val crosses = listOf(
+            mapOf(Pair(-1,-1) to 'M', Pair( 1, 1) to 'S'),
+            mapOf(Pair(-1, 1) to 'M', Pair( 1,-1) to 'S'),
+            mapOf(Pair( 1,-1) to 'M', Pair(-1, 1) to 'S'),
+            mapOf(Pair( 1, 1) to 'M', Pair(-1,-1) to 'S'),
+        )
+
         var counter = 0;
         val matrix = input.lines().map { line -> line.toCharArray() }.toTypedArray()
         for(row in matrix.indices) {
             for (col in matrix[row].indices) {
-                if (matrix[row][col] == 'M') {
-
+                if (matrix[row][col] == 'A') {
+                    var crossCount = 0
+                    for( c in crosses) {
+                        crossCount += if(c.asSequence()
+                            .fold(true) { acc, entry ->
+                                   acc
+                                && matrix.safeGet(row + entry.key.second).safeGet(col + entry.key.first) == entry.value
+                            }) 1 else 0
+                    }
+                    if(crossCount == 2) counter++
                 }
             }
         }
         return counter
+    }
+
+    private fun Array<CharArray>.safeGet(index : Int) :CharArray {
+        return this.getOrElse(index){_-> CharArray(0)}
+    }
+
+    private fun CharArray.safeGet(index : Int) : Char{
+        return this.getOrElse(index){_->'.'}
     }
 
     private fun findXmas(input: String) : Int {
@@ -79,18 +111,10 @@ class Day4 {
     private fun isXmas(matrix: Array<CharArray>, rows : IntArray, cols : IntArray) : Boolean {
         val y = rows.iterator()
         val x = cols.iterator()
-        return     matrix.getOrElse(y.next()) {_->CharArray(0) }.getOrElse(x.next()) {_->'.'} == 'X'
-                && matrix.getOrElse(y.next()) {_->CharArray(0) }.getOrElse(x.next()) {_->'.'} == 'M'
-                && matrix.getOrElse(y.next()) {_->CharArray(0) }.getOrElse(x.next()) {_->'.'} == 'A'
-                && matrix.getOrElse(y.next()) {_->CharArray(0) }.getOrElse(x.next()) {_->'.'} == 'S'
+        return     matrix.safeGet(y.next()).safeGet(x.next()) == 'X'
+                && matrix.safeGet(y.next()).safeGet(x.next()) == 'M'
+                && matrix.safeGet(y.next()).safeGet(x.next()) == 'A'
+                && matrix.safeGet(y.next()).safeGet(x.next()) == 'S'
     }
-
-    private fun isXXmas(matrix: Array<CharArray>, startPosX: Int, startPosY : Int) : Boolean {
-
-        return matrix.getOrElse(startPosY){ _->CharArray(0)}.getOrElse(startPosX) {_->'.'} == 'M'
-            && matrix.getOrElse(startPosY){ _->CharArray(0)}.getOrElse(startPosX) {_->'.'} == 'X'
-    }
-
-
 
 }

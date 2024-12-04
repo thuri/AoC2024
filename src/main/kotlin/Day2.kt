@@ -4,7 +4,7 @@ import kotlin.math.sign
 
 fun main() {
     val day2 = Day2()
-//    day2.puzzle1()
+    day2.puzzle1()
     day2.example2()
     day2.puzzle2() // 258 too low
 }
@@ -21,6 +21,11 @@ class Day2 {
         }
     }
 
+    fun puzzle1() {
+        this.parseInput(Day2::class.java.getResource("/Day2.txt")?.readText()!!)
+        reports.map { report ->  isSafe(report) }.count {it}.let { println(it) }
+    }
+
     fun example2() {
         val text = """
             7 6 4 2 1
@@ -31,49 +36,33 @@ class Day2 {
             1 3 6 7 9
         """.trimIndent()
         this.parseInput(text)
-
-        reports.mapIndexed { reportNo, report ->
-            val diff = isSafe(reportNo, report)
-            for (i in diff.indices) {
-                if(diff[i] == 0) return@mapIndexed report.filterIndexed() { index, _ -> index != (i + 1)}
-                else if(diff[i].sign != diff.getOrElse(i+1) { _ -> diff[i] }.sign) return@mapIndexed report.filterIndexed { index, _ -> index != (i+1) }
-            }
-            return@mapIndexed report
-        }.mapIndexed{ index, adjustedReport -> isSafe(index, adjustedReport) }.count() { abs(it.sum()) == it.size }.let { println(it) }
-
+        println(countWithDampener())
     }
-
-    fun puzzle1() {
-        this.parseInput(Day2::class.java.getResource("/Day2.txt")?.readText()!!)
-        reports.mapIndexed { index, report ->  isSafe(index,report) }.count { abs(it.sum()) == it.size }.let { println(it) }
-    }
-
     fun puzzle2() {
         this.parseInput(Day2::class.java.getResource("/Day2.txt")?.readText()!!)
-        val temp = reports.mapIndexed { reportNo, report ->
-            val diff = isSafe(reportNo, report)
-            for (i in diff.indices) {
-                if(diff[i] == 0) return@mapIndexed report.filterIndexed() { index, _ -> index != i }
-                else if(diff[i].sign != diff.getOrElse(i+1) { _ -> diff[i] }.sign) return@mapIndexed report.filterIndexed() { index, _ -> index != i+1 }
-            }
-            return@mapIndexed report
-        }.mapIndexed{ index, adjustedReport ->
-            println(reports[index])
-            println(adjustedReport)
-            val diffs = isSafe(index, adjustedReport)
-            println(diffs)
-            diffs
-        }
-
-        println(temp.count { abs(it.sum()) == it.size })
-
+        println(countWithDampener())
     }
 
-    private fun isSafe(reportNo: Int, report: List<Long>) : List<Int> {
-        return report
+
+    private fun countWithDampener() = reports.map { report ->
+        var isSafe = isSafe(report)
+        if (!isSafe) {
+            val subreports = mutableListOf<List<Long>>()
+            for (r in 0..report.size) {
+                subreports.add(report.filterIndexed { index, _ -> index != r })
+            }
+            isSafe = subreports.firstOrNull() { isSafe(it) } != null
+        }
+        return@map isSafe
+    }.count { it }
+
+
+    private fun isSafe(report: List<Long>) : Boolean {
+        return abs(report
             .mapIndexed {index, value -> value - report[max(0, index - 1)] }
             .filterIndexed {index, _ -> index != 0}
             .map { it.sign * ( if( abs(it) in 1 .. 3) 1 else 0) }
+            .sum()) == report.size - 1
     }
 
     /*private fun isSafeWithDamper(reportNo: Int, report: List<Long>) : Boolean {

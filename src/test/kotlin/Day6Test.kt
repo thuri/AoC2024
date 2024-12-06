@@ -7,7 +7,7 @@ class Day6Test {
     private val day6 = Day6()
 
     @Test
-    fun example1() {
+    fun example() {
         val maze = toCharMatrix("""
             ....#.....
             .........#
@@ -21,14 +21,18 @@ class Day6Test {
             ......#...
         """.trimIndent())
 
-        assertEquals(41, day6.puzzle1(maze))
+        val result = day6.walk(maze)
+        assertEquals(41, result.first)
+        assertEquals(6, result.second)
     }
 
     @Test
-    fun puzzle1() {
+    fun puzzle() {
         val maze = toCharMatrix(Day6::class.java.getResource("/Day6.txt")!!.readText())
 
-        assertEquals(4515, day6.puzzle1(maze))
+        val result = day6.walk(maze)
+        assertEquals(4515, result.first)
+        assertEquals(-1, result.second) //360 too low
     }
 
     companion object {

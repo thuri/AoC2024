@@ -1,29 +1,10 @@
-class Day6 {
+typealias Point = Pair<Int,Int>
 
-    companion object {
-        private val RIGHT = Pair(1,0)
-        private val DOWN  = Pair(0,1)
-        private val UP    = Pair(0,-1)
-        private val LEFT  = Pair(-1,0)
+class Day6() {
 
-//        UP ---TURN---> RIGHT ---TURN---> DOWN ---TURN---> LEFT ---TURN---> UP
-//        (0,-1)         (1,0)            (0,1)             (-1,0)
-
-    }
-
-    private fun signForDirection(direction: Pair<Int, Int>): Char {
-        return when(direction) {
-            UP-> '|'
-            DOWN -> '1'
-            LEFT -> '-'
-            RIGHT -> '~'
-            else -> '.'
-        }
-    }
-
-    fun walk(maze: Array<Array<Char>>): Pair<Int,Int> {
+    private fun findStart(maze : Array<Array<Char>>) : Pair<Point,Point>{
         var position : Pair<Int,Int> = Pair(0,0)
-        var direction = UP
+        val direction = Pair(0,-1)
         for(y in maze.indices) {
             for (x in maze.indices) {
                 if(maze[y][x] == '^') {
@@ -32,48 +13,75 @@ class Day6 {
                 }
             }
         }
+        return position to direction
+    }
 
-        var counter = 1
-        var obstacleCounter = 0
+    private fun signForDirection(direction: Point) : Char =
+        when(direction) {
+            Point(0,-1) /*UP*/    -> '1'
+            Point(0, 1) /*DOWN*/  -> '|'
+            Point( 1,0) /*RIGHT*/ -> '~'
+            Point(-1,0) /*LEFT*/  -> '-'
+            else -> '.'
+        }
+
+    fun walk(maze : String) = walk(toCharMatrix(maze))
+
+    private fun walk(maze : Array<Array<Char>>): Set<Pair<Point,Point>> {
+
+        val start = findStart(maze)
+
+        var position = start.first
+        var direction = start.second
+
+        val visited = mutableSetOf(position to direction)
         while(true) {
 
             val currentSign = maze[position.second][position.first]
-            if(!listOf('X','^','|','1','-','~').contains(currentSign)) {
-                maze[position.second][position.first] = signForDirection(direction)
-                counter += 1
+            if(currentSign == signForDirection(direction))
+                throw LoopException()
+            maze[position.second][position.first] = signForDirection(direction)
+
+            if(!listOf('^','|','1','-','~').contains(currentSign)) {
+                visited.add(position to direction)
             }
 
             var next = position + direction
-            if(next.second >= maze.size || next.first >= maze[0].size) break
+            if (next.second < 0 || next.first < 0 || next.second >= maze.size || next.first >= maze[0].size) break
 
             if (maze[next.second][next.first] == '#') {
-                println("rotate at $position")
+//                println("rotate at $position")
                 direction = rotateRight(direction)
                 next = position + direction
             }
-            else {
-                val loopDirection = rotateRight(direction)
-                var tempPoint = position
-                while (true) {
-                    tempPoint += loopDirection
-                    if (tempPoint.second > 0 && tempPoint.second < maze.size && tempPoint.first > 0 && tempPoint.first < maze[0].size) {
-                        val loopchar = maze[tempPoint.second][tempPoint.first]
-                        if (loopchar == signForDirection(loopDirection)) {
-                            obstacleCounter++
-                            break
-                        }
-                        else if (loopchar == '#') break;
-                    } else {
-                        break;
-                    }
-                }
-            }
-                position = next
-                println("move to $position [$counter]")
 
+            position = next
+//            println("move to $position [${visited.size}]")
         }
 
-        return Pair(counter,obstacleCounter);
+        return visited;
+    }
+
+    fun countLoops(mazeInput : String) : Int {
+
+        val maze = toCharMatrix(mazeInput)
+        val start = findStart(maze)
+        val way = walk(maze).toMutableSet().apply {
+            remove(start)
+        }
+
+        var loopCount = 0
+        way.forEach { waypoint ->
+            val loopMaze = toCharMatrix(mazeInput)
+            loopMaze[waypoint.first.second][waypoint.first.first] = '#'
+            try {
+                Day6().walk(loopMaze)
+            } catch (e : LoopException) {
+                loopCount++
+            }
+        }
+
+        return loopCount
     }
 
     operator fun Pair<Int,Int>.plus(other: Pair<Int,Int>) : Pair<Int,Int>{
@@ -83,4 +91,12 @@ class Day6 {
     private fun rotateRight(v : Pair<Int,Int>) : Pair<Int,Int>{
         return Pair(v.first * 0 - v.second * 1, v.first * 1 + v.second * 0)
     }
+
+    fun toCharMatrix(input : String) : Array<Array<Char>> {
+        return input.lines().map { line -> line.toCharArray().toTypedArray() }.toTypedArray()
+    }
+}
+
+class LoopException : RuntimeException() {
+
 }

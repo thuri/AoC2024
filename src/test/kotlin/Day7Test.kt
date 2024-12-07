@@ -24,8 +24,16 @@ class Day7Test {
 
     @Test
     fun puzzle1() {
-        assertEquals(-1, Day7(puzzleInput).solve1());
-        // 28956735990 to low
-        // 2664460013123
+        assertEquals(2664460013123, Day7(puzzleInput).solve1());
+    }
+
+    @Test
+    fun example2() {
+        assertEquals(11387, Day7(exampleInput).solve2());
+    }
+
+    @Test
+    fun puzzle2() {
+        assertEquals(-1, Day7(puzzleInput).solve2());
     }
 }

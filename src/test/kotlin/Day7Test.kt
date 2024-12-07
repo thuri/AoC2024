@@ -34,6 +34,6 @@ class Day7Test {
 
     @Test
     fun puzzle2() {
-        assertEquals(-1, Day7(puzzleInput).solve2());
+        assertEquals(426214131924213, Day7(puzzleInput).solve2());
     }
 }

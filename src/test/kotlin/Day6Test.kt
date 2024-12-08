@@ -22,13 +22,13 @@ class Day6Test {
     @Test
     fun example1() {
         val day = Day6()
-        assertEquals(41, day.walk(exampleMaze).size )
+        assertEquals(41, day.walk(exampleMaze).map { it.first }.toSet().size )
     }
 
     @Test
     fun puzzle1() {
         val day = Day6()
-        assertEquals(4515, day.walk(maze).size)
+        assertEquals(4515, day.walk(maze).map { it.first }.toSet().size)
     }
 
     @Test
@@ -40,6 +40,8 @@ class Day6Test {
     @Test
     fun puzzle2() {
         val day = Day6()
-        assertEquals(6, /*day.countLoops(maze)*/ 0)
+        assertEquals(-1, day.countLoops(maze))
+        // 1261 too low
+        // 1370 too high
     }
 }

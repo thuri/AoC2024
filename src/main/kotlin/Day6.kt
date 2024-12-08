@@ -1,6 +1,6 @@
 typealias Point = Pair<Int,Int>
 
-class Day6() {
+class Day6 {
 
     private fun findStart(maze : Array<Array<Char>>) : Pair<Point,Point>{
         var position : Pair<Int,Int> = Pair(0,0)
@@ -16,47 +16,33 @@ class Day6() {
         return position to direction
     }
 
-    private fun signForDirection(direction: Point) : Char =
-        when(direction) {
-            Point(0,-1) /*UP*/    -> '1'
-            Point(0, 1) /*DOWN*/  -> '|'
-            Point( 1,0) /*RIGHT*/ -> '~'
-            Point(-1,0) /*LEFT*/  -> '-'
-            else -> '.'
-        }
+    fun walk(maze : String): Set<Pair<Point, Point>> {
+        val charMaze = toCharMatrix(maze)
+        return walk(findStart(charMaze), charMaze)
+    }
 
-    fun walk(maze : String) = walk(toCharMatrix(maze))
-
-    private fun walk(maze : Array<Array<Char>>): Set<Pair<Point,Point>> {
-
-        val start = findStart(maze)
+    private fun walk(start : Pair<Point,Point>, maze : Array<Array<Char>>): Set<Pair<Point,Point>> {
 
         var position = start.first
         var direction = start.second
 
-        val visited = mutableSetOf(position to direction)
+        val visited = mutableSetOf<Pair<Point,Point>>()
         while(true) {
 
-            val currentSign = maze[position.second][position.first]
-            if(currentSign == signForDirection(direction))
+            if(visited.contains(Pair(position,direction)))
                 throw LoopException()
-            maze[position.second][position.first] = signForDirection(direction)
-
-            if(!listOf('^','|','1','-','~').contains(currentSign)) {
-                visited.add(position to direction)
-            }
+            visited.add(position to direction)
 
             var next = position + direction
-            if (next.second < 0 || next.first < 0 || next.second >= maze.size || next.first >= maze[0].size) break
+            if (next.second < 0 || next.first < 0 || next.second >= maze.size || next.first >= maze[0].size) {
+                break
+            }
 
             if (maze[next.second][next.first] == '#') {
-//                println("rotate at $position")
                 direction = rotateRight(direction)
                 next = position + direction
             }
-
             position = next
-//            println("move to $position [${visited.size}]")
         }
 
         return visited;
@@ -66,22 +52,23 @@ class Day6() {
 
         val maze = toCharMatrix(mazeInput)
         val start = findStart(maze)
-        val way = walk(maze).toMutableSet().apply {
+        val way = walk(start, maze).toMutableSet().apply {
             remove(start)
         }
 
-        var loopCount = 0
+        val newObstacles = mutableSetOf<Point>()
         way.forEach { waypoint ->
             val loopMaze = toCharMatrix(mazeInput)
-            loopMaze[waypoint.first.second][waypoint.first.first] = '#'
+            val obstacle = waypoint.first
+            loopMaze[obstacle.second][obstacle.first] = '#'
             try {
-                Day6().walk(loopMaze)
-            } catch (e : LoopException) {
-                loopCount++
+                Day6().walk(start, loopMaze)
+            } catch (e: LoopException) {
+                newObstacles.add(obstacle)
             }
         }
 
-        return loopCount
+        return newObstacles.distinct().size
     }
 
     operator fun Pair<Int,Int>.plus(other: Pair<Int,Int>) : Pair<Int,Int>{
@@ -92,11 +79,9 @@ class Day6() {
         return Pair(v.first * 0 - v.second * 1, v.first * 1 + v.second * 0)
     }
 
-    fun toCharMatrix(input : String) : Array<Array<Char>> {
+    private fun toCharMatrix(input : String) : Array<Array<Char>> {
         return input.lines().map { line -> line.toCharArray().toTypedArray() }.toTypedArray()
     }
 }
 
-class LoopException : RuntimeException() {
-
-}
+class LoopException : RuntimeException()

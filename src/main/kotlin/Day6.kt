@@ -33,16 +33,16 @@ class Day6 {
                 throw LoopException()
             visited.add(position to direction)
 
-            var next = position + direction
+            val next = position + direction
             if (next.second < 0 || next.first < 0 || next.second >= maze.size || next.first >= maze[0].size) {
                 break
             }
 
             if (maze[next.second][next.first] == '#') {
                 direction = rotateRight(direction)
-                next = position + direction
+            } else {
+                position = next
             }
-            position = next
         }
 
         return visited;
@@ -67,7 +67,6 @@ class Day6 {
                 newObstacles.add(obstacle)
             }
         }
-
         return newObstacles.distinct().size
     }
 

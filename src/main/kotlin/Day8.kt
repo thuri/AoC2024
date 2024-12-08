@@ -34,4 +34,31 @@ class Day8(input: String) {
         }.toSet()
         return antinodes.size
     }
+
+    fun solve2(): Int {
+        val antinodes =antennaVectors.values.flatMap{ vectors ->
+            return@flatMap vectors.flatMapIndexed{index, vector  ->
+                val diffs = vectors.filterIndexed { i, _ -> i != index }.map { o ->
+                    Vector(o.first - vector.first, o.second - vector.second)
+                }
+                val antinodes = diffs.flatMap { diff ->
+                    val points = mutableListOf<Point>()
+                    var multiplier = 0
+                    while(true) {
+                        multiplier++
+                        val nextPoint = Point(vector.first + (multiplier*diff.first), vector.second + (multiplier*diff.second))
+                        if(nextPoint.first >= 0 && nextPoint.second >= 0 && nextPoint.first <= WIDTH && nextPoint.second <= HEIGHT)
+                            points.add(nextPoint)
+                        else
+                            break
+                    }
+                    points
+                }
+                return@flatMapIndexed antinodes
+            }.filter {
+                it.first >= 0 && it.second >= 0 && it.first <= WIDTH && it.second <= HEIGHT
+            }
+        }.toSet()
+        return antinodes.size
+    }
 }

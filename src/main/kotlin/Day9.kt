@@ -58,7 +58,7 @@ class Day9(example: String) {
             if(newSpaceIdx == -1) continue
             val newSpace = freeSpaces[newSpaceIdx]
 
-            if(newSpace.firstBlock >= file.firstBlock) break;
+            if(newSpace.firstBlock >= file.firstBlock) continue
 
             (newSpace.firstBlock ..< (newSpace.firstBlock + file.length)).forEach { idx ->
                 this.blocks[idx].id = file.fileId

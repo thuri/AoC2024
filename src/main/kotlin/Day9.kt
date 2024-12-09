@@ -56,8 +56,10 @@ class Day9(example: String) {
 
             val newSpaceIdx = freeSpaces.indexOfFirst { it.length >= file.length }
             if(newSpaceIdx == -1) continue
-
             val newSpace = freeSpaces[newSpaceIdx]
+
+            if(newSpace.firstBlock >= file.firstBlock) break;
+
             (newSpace.firstBlock ..< (newSpace.firstBlock + file.length)).forEach { idx ->
                 this.blocks[idx].id = file.fileId
             }
@@ -77,6 +79,8 @@ class Day9(example: String) {
             }
         }
 
+        println(this.blocks.mapIndexed { _, block -> "${ block.id?.toString() ?: '.' }" })
+        println(this.blocks.size)
         return checksum()
     }
 }

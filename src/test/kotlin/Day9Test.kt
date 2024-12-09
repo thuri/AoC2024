@@ -29,7 +29,7 @@ class Day9Test {
 
     @Test
     fun puzzle2() {
-        assertEquals(-1, Day9(input).solve2())
+        assertEquals(6311837662089, Day9(input).solve2())
         // 8491540479687 to high
         // 6324665179002 to high
     }

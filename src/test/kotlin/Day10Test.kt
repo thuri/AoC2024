@@ -18,11 +18,21 @@ class Day10Test {
 
     @Test
     fun example1() {
-        assertEquals(36, Day10(example).solve1())
+        assertEquals(36L, Day10(example).solve1())
     }
 
     @Test
     fun puzzle1() {
-        assertEquals(789, Day10(input).solve1())
+        assertEquals(789L, Day10(input).solve1())
+    }
+
+    @Test
+    fun example2() {
+        assertEquals(81L, Day10(example).solve2())
+    }
+
+    @Test
+    fun puzzle2() {
+        assertEquals(1735, Day10(input).solve2())
     }
 }

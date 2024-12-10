@@ -1,52 +1,51 @@
 class Day10 (input :  String){
 
-    private val heightMap : Array<Array<Int>>
+    private val trailFinders : List<TrailFinder>
 
     init {
-        heightMap = input.lines().map { line ->
+        val heightMap = input.lines().map { line ->
             line.toCharArray().map { it.digitToInt() }.toTypedArray()
         }.toTypedArray()
+
+        trailFinders = heightMap.flatMapIndexed { y, row ->
+            row.mapIndexed { x, digit ->
+                if (digit == 0) TrailFinder(heightMap, Point(x, y)) else null
+            }
+            .filterNotNull()
+        }
     }
 
-    fun solve1() : Long {
-        return heightMap.mapIndexed{ y, row ->
-            row.mapIndexed{ x, digit ->
-                val currentPosition = Point(x,y)
-                if(digit == 0) {
-                    TrailFinder(this.heightMap).findPeaks(currentPosition)
-//                    .let {
-//                        println("$currentPosition = $it")
-//                        it
-//                    }
-                } else {
-                    0
-                }
-            }.sum()
-        }.sum()
-    }
+    fun solve1() = trailFinders.sumOf { it.findPeaks() }
 
-    private class TrailFinder(private val heightMap : Array<Array<Int>>) {
+    fun solve2() = trailFinders.sumOf { it.findWays() }
 
-        fun findPeaks(start : Point, visited: MutableSet<Point> = mutableSetOf()) : Long{
-            var peakCount = 0L;
-            if(heightMap[start] == 9) {
-                visited.add(start)
+    private class TrailFinder(private val heightMap : Array<Array<Int>>, val start: Point) {
+
+        fun findPeaks(current : Point = start, visited: MutableSet<Point> = mutableSetOf()) : Long{
+
+            if(heightMap[current] == 9) {
+                visited.add(current)
                 return 1
             }
 
-            val potentialRoutes = ArrayDeque(
-                directions
-                .map { direction -> start + direction }
+            return directions
+                .asSequence()
+                .map { direction -> current + direction }
+                .filter { next -> this.heightMap[next] != null }
+                .filter { next -> this.heightMap[next] == (this.heightMap[current]?.plus(1)) }
+                .filter { next -> !visited.contains(next) }
+                .sumOf { next -> findPeaks(next, visited) }
+        }
+
+        fun findWays(current : Point = start, visited: MutableSet<Point> = mutableSetOf()) : Long {
+
+            if(heightMap[current] == 9) return 1
+
+            return directions
+                .map { direction -> current + direction }
                 .filter { next -> this.heightMap[next] != null}
-                .filter { next -> this.heightMap[next] == (this.heightMap[start]?.plus(1)) }
-                .filter { next -> !visited.contains(next)}
-            )
-
-            while(potentialRoutes.isNotEmpty()) {
-                peakCount += findPeaks(potentialRoutes.removeFirst(), visited)
-            }
-
-            return peakCount
+                .filter { next -> this.heightMap[next] == (this.heightMap[current]?.plus(1)) }
+                .sumOf { next -> findWays(next, visited) }
         }
     }
 

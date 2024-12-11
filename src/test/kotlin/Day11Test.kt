@@ -16,4 +16,9 @@ class Day11Test {
     fun puzzle1() {
         assertEquals(191690, Day11(input).solve(25))
     }
+
+    @Test
+    fun puzzle2() {
+        assertEquals(228651922369703, Day11(input).solve(75))
+    }
 }

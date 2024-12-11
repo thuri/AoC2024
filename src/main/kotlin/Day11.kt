@@ -16,10 +16,11 @@ class Day11(example: String) {
                     cache[nextStone] = cache.getOrDefault(nextStone, 0) + counts
                 }
             }
-            stones.entries.take(10).forEach (::println )
-
             stones = cache
         }
+
+        println(stones.size)
+        stones.entries.take(10).forEach { println(it) }
 
         return stones.entries.sumOf { it.value }
     }

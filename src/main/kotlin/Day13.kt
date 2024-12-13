@@ -36,7 +36,7 @@ class Day13(example: String) {
 
         val targetExtensionVectorLength = sqrt(2*(10000000000000.0.pow(2)))
         return this.calculate(this.machines)
-            .map { (targetExtensionVectorLength / it.first) * it.second}
+            .map { (it.first + (targetExtensionVectorLength / it.first)) * it.second}
             .sum().toLong()
     }
 

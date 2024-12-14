@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.Assertions.assertTrue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -96,7 +97,32 @@ class Day14Test {
 
     @Test
     fun puzzle() {
-        assertEquals(225810288, Day14(input, 101, 103).solve())
+        assertEquals(225_810_288, Day14(input, 101, 103).solve())
     }
 
+    @Test
+    fun puzzle2() {
+        assertEquals(-1, Day14(input, 101, 103).solve2())
+    }
+
+    @Test
+    fun checkIsSymmetric() {
+        val t = """
+            p=5,0 v=-1,0
+            p=4,1 v=-1,0
+            p=6,1 v=-1,0
+            p=3,2 v=-1,0
+            p=4,2 v=-1,0
+            p=7,2 v=-1,0
+            p=6,2 v=-1,0
+            p=2,3 v=-1,0
+            p=8,3 v=-1,0
+            p=1,4 v=-1,0
+            p=9,4 v=-1,0
+            p=0,5 v=-1,0
+            p=10,5 v=-1,0
+        """.trimIndent()
+
+        assertTrue(Day14(t, 11,7).isSymmetric())
+    }
 }

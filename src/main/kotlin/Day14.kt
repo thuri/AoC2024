@@ -1,5 +1,9 @@
+import kotlin.math.abs
+
 class Day14(example: String, val width: Int, val height: Int) {
 
+    private val widthMiddle = width / 2
+    private val heightMiddle = height / 2
     val robots : List<Robot>
 
     init {
@@ -27,32 +31,72 @@ class Day14(example: String, val width: Int, val height: Int) {
             }
         }
 
-        this.robots.forEach {
-            println("${it.position} ${it.quadrant()}")
-        }
-
         return this.robots
             .groupBy { it.quadrant() }
             .filter { it.key != null }
-            .map { println(it); it.value.size }
+            .map { it.value.size }
             .reduce{ product, next -> product * next}
+    }
+
+    fun solve2() : Int {
+        var counter = 0;
+
+        while(isSymmetric()) {
+            counter++
+            if(counter % 10_000 == 0) println(counter)
+            this.robots.forEach { it.move() }
+        }
+
+        val output : Array<Array<Char>> = Array(height) { Array(width) {'.'} }
+        this.robots.forEach { output[it.position.second][it.position.first] = '*' }
+        output.forEach { line -> println(line.toCharArray()) }
+
+        return counter;
+    }
+
+    fun isSymmetric(): Boolean {
+        return this.robots.groupBy { it.position.second }
+            .map { robotsPerLine ->
+                val robotsPerHalf = robotsPerLine.value
+                    .filter { it.position.first != widthMiddle }
+                    .groupBy { it.position.first < widthMiddle }
+                    .map { it.value }
+
+                if (robotsPerHalf.size == 1) {
+                    return false
+                }
+                if (robotsPerHalf.size == 2) {
+                    if (robotsPerHalf[0].size != robotsPerHalf[1].size)
+                        return false
+                    else {
+                        robotsPerHalf[0].map { leftRobot ->
+                            robotsPerHalf[1].find { rightRobot ->
+                                abs(width - leftRobot.position.first) == abs(width - rightRobot.position.first)
+                            }
+                        }
+                        true
+                    }
+                } else {
+                    true
+                }
+            }.reduce { result, next -> result && next }
     }
 
     inner class Robot (var position: Point, private val velocity : Vector) {
 
         fun quadrant() : Pair<Int,Int>? {
 
-            if(this.position.first == (width / 2) || this.position.second == (height / 2))
+            if(this.position.first == widthMiddle || this.position.second == heightMiddle)
                 return null
 
             return Pair(
-                if(this.position.first < (width / 2)) 0 else 1,
-                if(this.position.second < (height / 2)) 0 else 1
+                if(this.position.first < widthMiddle) 0 else 1,
+                if(this.position.second < heightMiddle) 0 else 1
             )
         }
 
         fun move() {
-            val pos = ((this.position + velocity) as Point).let {
+            val pos = (this.position + velocity).let {
                 Point(
                     (width + it.first) % width,
                     (height + it.second) % height

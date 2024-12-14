@@ -1,4 +1,9 @@
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.io.File
+import javax.imageio.ImageIO
 import kotlin.math.abs
+
 
 class Day14(example: String, val width: Int, val height: Int) {
 
@@ -40,16 +45,27 @@ class Day14(example: String, val width: Int, val height: Int) {
 
     fun solve2() : Int {
         var counter = 0;
+        val maxCount = 7_000
+        val diff = 1000
 
-        while(isSymmetric()) {
+        do {
             counter++
-            if(counter % 10_000 == 0) println(counter)
-            this.robots.forEach { it.move() }
-        }
 
-        val output : Array<Array<Char>> = Array(height) { Array(width) {'.'} }
-        this.robots.forEach { output[it.position.second][it.position.first] = '*' }
-        output.forEach { line -> println(line.toCharArray()) }
+            val img =   if( (maxCount - diff) <= counter && counter < maxCount)
+                            BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR)
+                        else null
+            robots.forEach {
+                it.move();
+                img?.setRGB(it.position.first, it.position.second, Color.GREEN.rgb)
+            }
+
+            img?.run {
+                File("/tmp/day14/$counter.png").let { file ->
+                    ImageIO.write(this, "png", file)
+                }
+            }
+
+        } while(counter < maxCount)
 
         return counter;
     }

@@ -70,10 +70,6 @@ class Day6 {
         return newObstacles.distinct().size
     }
 
-    operator fun Pair<Int,Int>.plus(other: Pair<Int,Int>) : Pair<Int,Int>{
-        return Pair(this.first + other.first, this.second + other.second)
-    }
-
     private fun rotateRight(v : Pair<Int,Int>) : Pair<Int,Int>{
         return Pair(v.first * 0 - v.second * 1, v.first * 1 + v.second * 0)
     }
@@ -81,6 +77,10 @@ class Day6 {
     private fun toCharMatrix(input : String) : Array<Array<Char>> {
         return input.lines().map { line -> line.toCharArray().toTypedArray() }.toTypedArray()
     }
+}
+
+operator fun Pair<Int,Int>.plus(other: Pair<Int,Int>) : Pair<Int,Int>{
+    return Pair(this.first + other.first, this.second + other.second)
 }
 
 class LoopException : RuntimeException()

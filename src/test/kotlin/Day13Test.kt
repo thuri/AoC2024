@@ -35,8 +35,6 @@ class Day13Test {
 
     @Test
     fun puzzle2() {
-        assertEquals(-1L, Day13(puzzle).solve2())
-        // too low 72098849784658
-        // too low 72099173844999
+        assertEquals(78101482023732L, Day13(puzzle).solve2())
     }
 }

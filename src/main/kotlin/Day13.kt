@@ -1,4 +1,5 @@
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sqrt
 
 typealias LongVector = Pair<Long, Long>
@@ -29,41 +30,49 @@ class Day13(example: String) {
 
     fun solve(): Long {
         return calculate(this.machines)
-        .sumOf { it.second }
+        .sumOf { it }
     }
 
     fun solve2() : Long {
-
-        val targetExtensionVectorLength = sqrt(2*(10000000000000.0.pow(2)))
-        return this.calculate(this.machines)
-            .map { (it.first + (targetExtensionVectorLength / it.first)) * it.second}
-            .sum().toLong()
+        val extension = 10000000000000
+        return calculate(this.machines.map {
+            Machine(it.a, it.b, it.target + extension)
+        }).sumOf { it }
     }
 
-    private fun calculate(machines: List<Machine>) : List<Pair<Double, Long>> = machines.map { machine ->
-        val findsX = equation(machine.a.first, machine.b.first, machine.target.first)
-        val findsY = equation(machine.a.second, machine.b.second, machine.target.second)
-        val calcVectorLength = vectorLength(machine.a, machine.b)
-        val solutions = mutableSetOf<Pair<Double, Long>>()
+    private fun calculate(machines: List<Machine>) : List<Long> = machines.map { machine ->
+        val xA = machine.a.first.toDouble()
+        val yA = machine.a.second.toDouble()
+        val xB = machine.b.first.toDouble()
+        val yB = machine.b.second.toDouble()
+        val xT = machine.target.first.toDouble()
+        val yT = machine.target.second.toDouble()
 
-        for (a in 1..100L) {
-            for (b in 1..100L) {
-                if (findsX.invoke(a, b) && findsY(a, b)) {
-                    val vectorLength = calcVectorLength.invoke(a, b)
-                    solutions.add(vectorLength to a * 3L + b)
-                }
-            }
-        }
+        /*
+         * using gaussian elimination we get the following equation
+         *
+         * xA xB             | xT   / * -yA/xA -
+         * yA yB             | yT        <--+--|
+         * --------------------------
+         * xA xB             | xT
+         * 0  yB-(xB*yA)/xA  | yT-(xT*yA)/xA
+         * --------------------------
+         * => a*0 + b*(yB-(xB*yA)/xA) = yT-(xT*yA)/xA
+         *                          b = (yT-(xT*yA)/xA)/(yB-(xB*yA)/xA)
+         *
+         * the calculation must be done with double's and the result rounded to Long
+         */
+        val b = round((yT - (xT * yA / xA)) / (yB - (xB * yA / xA))).toLong()
+        val a = round((xT - b*xB) / xA).toLong()
 
-        solutions.minByOrNull { it.second }
+        if( a*xA + b*xB == xT && a*yA + b*yB == yT)
+            return@map a * 3L + b
+        else
+            return@map 0
     }
-    .filterNotNull()
-    .filter { it.second != 0L }
+    .filter { it != 0L }
 
-
-    private fun equation(aC:Long, bC: Long, tC : Long) : (Long, Long) -> Boolean =
-        { a, b -> aC*a + bC*b == tC }
-
-    private fun vectorLength(aV : LongVector, bV: LongVector) : (Long, Long) -> Double =
-        { a, b -> sqrt((a*aV.first + b*bV.first).toDouble().pow(2) + (a*aV.second + b*bV.second).toDouble().pow(2)) }
+    operator fun LongVector.plus(scalar : Long) : LongVector {
+        return LongVector(this.first + scalar, this.second + scalar)
+    }
 }

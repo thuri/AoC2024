@@ -34,23 +34,47 @@ class Day12(input: String) {
         private fun borders() = regionPlots.sumOf { it.borders.size.toLong() }
         private fun area()    = regionPlots.size
         private fun sides(): Long {
-            val west  = mutableSetOf<Int>()
-            val east  = mutableSetOf<Int>()
-            val north = mutableSetOf<Int>()
-            val south = mutableSetOf<Int>()
 
-            regionPlots.forEach { plot ->
-                   plot.borders.forEach() { border ->
-                       when(border) {
-                           WEST -> west += plot.coord.first
-                           EAST -> east += plot.coord.first
-                           NORTH -> north += plot.coord.second
-                           SOUTH -> south += plot.coord.second
-                       }
-                   }
+            val startPlot = regionPlots.first()
+            val startBorder = startPlot.borders.first()
+
+            var current : Plot = startPlot
+            var border = startBorder
+            var counter = 0L
+            do {
+
+                val direction = directionForBorder(border)
+                val next = plots[current.coord + direction]
+                if(this.regionPlots.contains(next) && next?.borders?.contains(border) == true) {
+                    current = next
+//                } else if(this.regionPlots.contains(next) && next?.borders?.contains(border.left()) == true) {
+//                    counter++
+//                    border = border.right()
+                } else if(this.regionPlots.contains(next)
+                        && plots[current.coord + direction + border]?.let {
+                            this.regionPlots.contains(it) && it.borders.contains(border.left())
+                        } == true
+                ) {
+                    counter++
+                    current = plots[current.coord + direction + border]!!
+                    border = border.left()
+                } else {
+                    counter++
+                    border = border.right()
+                }
+            } while( current != startPlot || (current == startPlot && border != startBorder ))
+
+            return counter
+        }
+
+        private fun directionForBorder(border : Vector) : Vector{
+            return when(border) {
+                NORTH -> EAST
+                EAST -> SOUTH
+                SOUTH -> WEST
+                WEST -> NORTH
+                else -> throw IllegalArgumentException("Unknown border $border")
             }
-
-            return (west.size + east.size + north.size + south.size).toLong()
         }
 
         fun price() : Long = borders() * area()
@@ -87,6 +111,12 @@ class Day12(input: String) {
         operator fun List<List<Plot>>.get(corrdinates : Point) : Plot? {
             return this.getOrElse(corrdinates.second) { null }?.getOrElse(corrdinates.first) { null }
         }
+
+        fun Vector.right() : Vector =
+            Pair(this.first * 0 - this.second * 1, this.first * 1 + this.second * 0)
+
+        fun Vector.left() : Vector =
+            Pair(this.first * 0 - this.second * -1, this.first * -1 + this.second * 0)
 
         operator fun Point.plus(vector : Vector) : Point =
             Point(this.first + vector.first, this.second + vector.second)

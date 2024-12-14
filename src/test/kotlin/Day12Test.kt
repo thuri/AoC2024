@@ -1,3 +1,5 @@
+import Day12.Companion.left
+import Day12.Companion.right
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -53,7 +55,29 @@ class Day12Test {
     }
 
     @Test
+    fun puzzle2() {
+        assertEquals(-1, Day12(input).solve2())
+        // 809810 too low
+    }
+
+    @Test
     fun example2a() {
         assertEquals(368, Day12(example2).solve2())
+    }
+
+    @Test
+    fun testRotatingLeft() {
+        assertEquals(Vector(1, 0), Vector(0, 1).left())
+        assertEquals(Vector(0,-1), Vector(1, 0).left())
+        assertEquals(Vector(-1,0), Vector(0,-1).left())
+        assertEquals(Vector(0, 1), Vector(-1,0).left())
+    }
+
+    @Test
+    fun testRotatingRight() {
+        assertEquals(Vector(-1,0), Vector(0, 1).right())
+        assertEquals(Vector(0, 1), Vector(1, 0).right())
+        assertEquals(Vector(1, 0), Vector(0,-1).right())
+        assertEquals(Vector(0,-1), Vector(-1,0).right())
     }
 }

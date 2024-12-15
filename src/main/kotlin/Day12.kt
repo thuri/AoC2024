@@ -35,21 +35,21 @@ class Day12(input: String) {
         private fun area()    = regionPlots.size
         private fun sides(): Long {
 
+            val coordsToVisit = regionPlots.map { it.coord }.toMutableSet()
             val startPlot = regionPlots.first()
             val startBorder = startPlot.borders.first()
 
             var current : Plot = startPlot
             var border = startBorder
             var counter = 0L
-            do {
+            while (!coordsToVisit.isEmpty()){
+
+                coordsToVisit.remove(current.coord)
 
                 val direction = directionForBorder(border)
                 val next = plots[current.coord + direction]
                 if(this.regionPlots.contains(next) && next?.borders?.contains(border) == true) {
                     current = next
-//                } else if(this.regionPlots.contains(next) && next?.borders?.contains(border.left()) == true) {
-//                    counter++
-//                    border = border.right()
                 } else if(this.regionPlots.contains(next)
                         && plots[current.coord + direction + border]?.let {
                             this.regionPlots.contains(it) && it.borders.contains(border.left())
@@ -62,7 +62,7 @@ class Day12(input: String) {
                     counter++
                     border = border.right()
                 }
-            } while( current != startPlot || (current == startPlot && border != startBorder ))
+            }
 
             return counter
         }

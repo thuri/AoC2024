@@ -58,10 +58,10 @@ class Day10 (input :  String){
         operator fun Point.plus(vector : Vector) : Point =
             Point(this.first + vector.first, this.second + vector.second)
 
-        private val NORTH = Vector(0, -1)
-        private val EAST  = Vector(1,  0)
-        private val SOUTH = Vector(0,  1)
-        private val WEST  = Vector(-1, 0)
+        val NORTH = Vector(0, -1)
+        val EAST  = Vector(1,  0)
+        val SOUTH = Vector(0,  1)
+        val WEST  = Vector(-1, 0)
 
         private val directions = listOf(NORTH, EAST, SOUTH, WEST)
     }
